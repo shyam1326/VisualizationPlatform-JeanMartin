@@ -4,7 +4,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-import pandas_profiling
+#import pandas_profiling
 
 
 markdown_text = '''
@@ -31,35 +31,43 @@ app = dash.Dash()
 app.layout = html.Div(children=[
     dcc.Markdown(children=markdown_text, style={'textAlign': 'center'}),
     html.H1('Visualization Platform', style={'textAlign': 'center'}),
-    dcc.Markdown(children=markdown_text_1, style={'textAlign': 'center'}),
+    #dcc.Markdown(children=markdown_text_1, style={'textAlign': 'center'}),
+
 
     html.Div([
+        html.H3('X_Axis', style= {'fontSize' : 24}),
         dcc.Dropdown(id='x_axis',
                      options=[{'label': str(i), 'value': i} for i in features],
                      value='COUNTRY',
-                     placeholder='Select the X_axis')
-    ], style={'width': '32%', 'display': 'inline-block', 'border': '2px gold solid'}),
+                     placeholder='Select the X_axis',
+                     style= {'border': '2px gold solid'})
+    ], style={'width': '32%', 'display': 'inline-block'}),
+
 
     html.Div([
+        html.H3('Y_Axis', style= {'fontSize' : 24}),
         dcc.Dropdown(id='y_axis',
                      options=[{'label': str(i), 'value': i} for i in features],
                      value='FTE',
-                     placeholder='Select the Y_axis')
-    ], style={'width': '32%', 'display': 'inline-block', 'border': '2px gold solid'}),
+                     placeholder='Select the Y_axis',
+                     style= {'border': '2px gold solid'})
+    ], style={'width': '32%', 'display': 'inline-block'}),
 
     html.Div([
+            html.H3('Z_Axis', style= {'fontSize' : 24}),
             dcc.Dropdown(id='z_axis',
                          options=[{'label': str(i), 'value': i} for i in features],
                          value='',
                          multi= True,
-                         placeholder='Select the Z_axis')
-        ], style={'width': '32%', 'display': 'inline-block', 'border': '2px gold solid'}),
+                         placeholder='Select the Z_axis',
+                         style= {'border': '2px gold solid'})
+        ], style={'width': '32%', 'display': 'inline-block'}),
 
     html.Div([
     html.Button(id='submit',
                 n_clicks=0,
                 children='submit Here',
-                style= {'fontSize': 24, })
+                style= {'fontSize': 24})
     ]),
 
     dcc.Graph(id='graph',style={'width': '48%', 'display': 'inline-block'}),
@@ -80,7 +88,7 @@ def update_figure(n_clicks,x_axis, y_axis):
             'data': [go.Histogram(
                 x=df[x_axis]
             )],
-            'layout': go.Layout(title='Univariate - Histogram',
+            'layout': go.Layout(title= 'Histogram of ' + x_axis,
                                 xaxis={'title': x_axis},
                                 hovermode='closest'
                                 )
@@ -93,8 +101,8 @@ def update_figure(n_clicks,x_axis, y_axis):
                 labels = df1['column'],
                 values= df1['counts']
             )],
-            'layout': go.Layout(title= 'Univariate - Pie chart',
-                                xaxis={'title': x_axis},
+            'layout': go.Layout(title= x_axis,
+                                #xaxis={'title': x_axis},
                                 hovermode='closest'
                                 )
         }
@@ -109,21 +117,21 @@ def update_figure(n_clicks, x_axis, y_axis):
             'data': [go.Histogram(
                 x=df[y_axis]
             )],
-            'layout': go.Layout(title='Univariate - Histogram',
+            'layout': go.Layout(title='Histogram of ' + x_axis,
                                 xaxis={'title': y_axis},
                                 hovermode='closest'
                                 )
         }
     elif (df[y_axis].dtypes == 'object'):
-        df1 = df[y_axis].value_counts().reset_index()
-        df1.columns = ['column', 'counts']
+        df2 = df[y_axis].value_counts().reset_index()
+        df2.columns = ['column', 'counts']
         return {
             'data': [go.Pie(
-                labels = df1['column'],
-                values= df1['counts']
+                labels = df2['column'],
+                values= df2['counts']
             )],
-            'layout': go.Layout(title='Univariate - Pie chart',
-                                xaxis={'title': x_axis},
+            'layout': go.Layout(title= y_axis,
+                                #xaxis={'title': x_axis},
                                 hovermode='closest'
                                 )
         }
@@ -141,51 +149,51 @@ def update_figure(n_clicks,x_axis, y_axis):
             mode = 'markers',
             marker= {'color': 'red'}
         )],
-            'layout': go.Layout(title='Bi-variate Scatter plot',
+            'layout': go.Layout(title= x_axis + ' vs ' + y_axis,
                                 xaxis={'title': x_axis},
                                 yaxis={'title': y_axis},
                                 hovermode='closest'
                                 )
         }
     elif (df[x_axis].dtypes == 'object') & (df[y_axis].dtypes == 'float64'):
-        df1 = df.groupby([x_axis])[[y_axis]].sum().reset_index()
+        df3 = df.groupby([x_axis])[[y_axis]].sum().reset_index()
         return {
             'data': [go.Bar(
-                    x = df1[x_axis],
-                    y = df1[y_axis],
+                    x = df3[x_axis],
+                    y = df3[y_axis],
                     marker= {'color': 'tan'}
         )],
-            'layout': go.Layout(title='Bi-variate Bar chart',
+            'layout': go.Layout(title= x_axis + ' vs Sum of ' + y_axis ,
                                 xaxis={'title': x_axis},
-                                yaxis={'title': y_axis},
+                                yaxis={'title': 'sum of ' + y_axis},
                                 hovermode='closest'
                                 )
         }
     elif (df[x_axis].dtypes == 'float64') & (df[y_axis].dtypes == 'object'):
-        df2 = df.groupby([y_axis])[[x_axis]].count().reset_index()
+        df4 = df.groupby([y_axis])[[x_axis]].count().reset_index()
         return {
             'data': [go.Bar(
-                x=df2[x_axis],
-                y=df2[y_axis],
+                x=df4[x_axis],
+                y=df4[y_axis],
                 orientation= 'h',
-                marker={'color': 'tan'}
+                marker={'color': 'orange'}
             )],
-            'layout': go.Layout(title='Bi-variate Horizontal Bar',
+            'layout': go.Layout(title= x_axis + ' vs Count of ' + y_axis ,
                                 xaxis={'title': x_axis},
                                 yaxis={'title': y_axis},
                                 hovermode='closest'
                                 )
         }
     elif (df[x_axis].dtypes == 'object') & (df[y_axis].dtypes == 'object'):
-        df3 = df.groupby([x_axis, y_axis]).count().reset_index()
+        df5 = df.groupby([x_axis, y_axis]).count().reset_index()
         return {
             'data': [go.Bar(
-                x=df3[x_axis],
-                y=df3[y_axis],
-                name = i) for i in df3[y_axis].unique()
+                x=df5[x_axis],
+                y=df5[y_axis],
+                name = i) for i in df5[y_axis].unique()
                 #marker={'color': 'violet'}
             ],
-            'layout': go.Layout(title='Bi-variate stacked Bar',
+            'layout': go.Layout(title= x_axis + ' vs ' + y_axis,
                                 xaxis={'title': x_axis},
                                 yaxis={'title': y_axis},
                                 barmode='stack',
@@ -215,7 +223,8 @@ def update_figure(n_clicks,x_axis, y_axis, z_axis):
 
     fig = {
         'data': traces,
-        'layout': {'title': 'Multi-variate Line chart',
+        'layout': {'title': x_axis + ' vs Mean of ' + y_axis + ' & ' + z_axis[0] + ' & ' + z_axis[1],
+                   'xaxis' : {'title': x_axis},
                    'hovermode': 'closest'}
     }
     return fig
