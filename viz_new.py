@@ -187,7 +187,7 @@ def update_figure(n_clicks,x_axis, y_axis):
                 marker={'color': 'orange'}
             )],
             'layout': go.Layout(title= x_axis + ' vs Count of ' + y_axis ,
-                                xaxis={'title': x_axis},
+                                #xaxis={'title': x_axis},
                                 yaxis={'title': y_axis},
                                 hovermode='closest'
                                 )
